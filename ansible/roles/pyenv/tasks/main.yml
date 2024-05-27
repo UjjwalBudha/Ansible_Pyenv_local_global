@@ -33,15 +33,6 @@
     cmd: /tmp/pyenv.sh
     creates: "{{ home_dir }}/.pyenv"
 
-# - name: 
-#   ansible.builtin.lineinfile:
-#     path: "{{ home_dir}}/.bashrc"
-#     line: |
-#       export PYENV_ROOT="$HOME/.pyenv"
-#       export PATH="$PYENV_ROOT/bin:$PATH"
-#       eval "$(pyenv init --path)"
-#       eval "$(pyenv init -)"
-
 - name: Create a directory
   ansible.builtin.file:
     path: /root/test_pyenv
