@@ -1,0 +1,57 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name: "{{ pyenv_packages }}"
+    state: present
+    update_cache: true
+
+- name: Download pyenv script
+  ansible.builtin.get_url:
+    dest: /tmp/pyenv.sh
+    url: https://pyenv.run
+    mode: "0555"
+
+- name: Execute pyenv install script
+  ansible.builtin.script: pyenv.sh
+  args:
+    creates: "{{ home_dir }}/.pyenv"
+
+- name: Create a directory
+  ansible.builtin.file:
+    path: /root/test_pyenv
+    state: directory
+
+- name: Check if Python 3.7.7 is already installed
+  shell: "{{ pyenv_dir }} versions | grep -q '3.7.7'"
+  register: python_3_7_7_installed
+  changed_when: false
+  ignore_errors: true  
+
+- name: Check if Python 3.10.4 is already installed
+  shell: "{{ pyenv_dir }} versions | grep -q '3.10.4'"
+  register: python_3_10_4_installed
+  changed_when: false
+  ignore_errors: true    
+
+- name: Install Python 3.7.7 using pyenv
+  ansible.builtin.shell:
+    cmd: |
+      {{ pyenv_dir }} install {{ pyenv_version_local }}
+  when: python_3_7_7_installed.rc != 0    
+
+- name: Install Python 3.10.4 using pyenv
+  ansible.builtin.shell:
+    cmd: |
+      {{ pyenv_dir }} install {{ pyenv_version_global }}
+  when: python_3_10_4_installed.rc != 0    
+
+- name: Install pyenv locally for specific directory
+  ansible.builtin.shell:
+    chdir: /root/test_pyenv
+    cmd: | 
+      {{ pyenv_dir }} local 3.7.7
+
+- name: Install pyenv globally
+  ansible.builtin.shell:
+    cmd: | 
+      {{ pyenv_dir }} global 3.10.4
